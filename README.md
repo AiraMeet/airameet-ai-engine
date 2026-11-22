@@ -1,12 +1,25 @@
-# AiraMeet AI Engine
+<p align="center">
+  <strong>A I R A M E E T</strong><br>
+  <sub>AI ENGINE</sub>
+</p>
 
-**The Artificial Intelligence Engine powering AiraMeet.**
+<h1 align="center">AiraMeet AI Engine</h1>
 
-AiraMeet AI Engine is the intelligent processing component of the AiraMeet platform. It is designed to transform unstructured meeting conversations into structured, searchable, and actionable information using AI and Deep Learning technologies.
+<p align="center">
+  The AI processing and intelligence engine behind the AiraMeet platform.
+</p>
 
-The engine will provide speech recognition, speaker diarization, meeting summarization, intelligent insight extraction, and knowledge retrieval capabilities.
+<p align="center">
+  Designed to process meeting content through Automatic Speech Recognition (ASR), including Egyptian Arabic and English code-switching, and speaker diarization with speaker-attributed transcription. The planned intelligence workflows extract decisions, tasks, deadlines, and unresolved issues from meetings.
+</p>
 
-> **Project Status:** Initial Setup – Architecture and folder structure established. Implementation is planned.
+<p align="center">
+  <strong>Project status:</strong> Initial setup. Architecture and folder structure are established; implementation is planned.
+</p>
+
+<p align="center">
+  <a href="https://github.com/AiraMeet/airameet-ai-engine"><img src="https://img.shields.io/badge/Repository-AiraMeet%2Fairameet--ai--engine-181717?logo=github" alt="AiraMeet AI Engine repository"></a>
+</p>
 
 ---
 
