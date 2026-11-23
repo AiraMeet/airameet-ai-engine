@@ -98,6 +98,18 @@ Dedicated to ASR model development and experimentation.
 | `experiments/` | Model training experiments and configurations. |
 | `evaluation/` | Model evaluation and performance metrics. |
 
+### ASR Dataset Setup
+
+Create a `data/` directory in the repository root and place the ASR datasets inside it:
+
+```text
+data/
+├── Arabic-English-ASR/
+└── ArzEn_Prepared/
+```
+
+The `/data/` entry in `.gitignore` excludes this directory from Git, so dataset files remain local and are not committed to the repository. Keep the dataset directory names as shown above so they are easy to identify in preprocessing and training workflows.
+
 ### 4. Supporting Directories
 
 | Directory | Responsibility |
