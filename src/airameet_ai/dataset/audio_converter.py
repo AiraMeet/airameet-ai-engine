@@ -6,8 +6,9 @@ Purpose:
     WAV, Mono, 16 kHz, PCM 16-bit.
 """
 
-from pathlib import Path
 import math
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import soundfile as sf
@@ -79,6 +80,8 @@ def convert_audio_file(
             "status": "failed",
             "error": str(error),
         }
+
+
 def convert_audio_batch(
     audio_df,
     source_root: str | Path,
@@ -96,31 +99,34 @@ def convert_audio_batch(
     source_root = Path(source_root).resolve()
     output_root = Path(output_root).resolve()
 
-    results = []
+    results: list[dict[str, Any]] = []
 
     for relative_path in audio_df[path_column]:
-
         relative_path = Path(str(relative_path))
 
         source_path = (source_root / relative_path).resolve()
         output_path = (output_root / relative_path).resolve()
 
         if not source_path.is_relative_to(source_root):
-            results.append({
-                "source_path": str(source_path),
-                "output_path": str(output_path),
-                "status": "failed",
-                "error": "Invalid path outside source directory.",
-            })
+            results.append(
+                {
+                    "source_path": str(source_path),
+                    "output_path": str(output_path),
+                    "status": "failed",
+                    "error": "Invalid path outside source directory.",
+                }
+            )
             continue
 
         if output_path.exists() and not overwrite:
-            results.append({
-                "source_path": str(source_path),
-                "output_path": str(output_path),
-                "status": "skipped",
-                "error": None,
-            })
+            results.append(
+                {
+                    "source_path": str(source_path),
+                    "output_path": str(output_path),
+                    "status": "skipped",
+                    "error": None,
+                }
+            )
             continue
 
         result = convert_audio_file(

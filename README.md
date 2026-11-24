@@ -142,7 +142,7 @@ Technology selection and implementation details may evolve during development.
 
 - [x] Establish the initial project directory structure.
 - [ ] Configure FastAPI.
-- [ ] Add project dependency management using `pyproject.toml`.
+- [x] Add project dependency management using `pyproject.toml`.
 - [ ] Implement application configuration and logging.
 - [ ] Add health check endpoint.
 - [ ] Create Dockerfile.
@@ -163,6 +163,27 @@ Technology selection and implementation details may evolve during development.
 - Meeting Intelligence.
 - Action Item and Decision Extraction.
 - Knowledge Retrieval.
+
+## Testing and Quality Assurance
+
+The project includes an automated test suite, static type checking, code style enforcement, and security auditing. Detailed instructions are available in [docs/testing.md](docs/testing.md).
+
+### Quick Commands
+
+```bash
+# Run tests with coverage
+pytest --cov=airameet_ai --cov-report=term-missing
+
+# Lint and style checks
+ruff check src tests
+
+# Static type checking
+mypy src tests
+
+# Security and dependency audit
+bandit -r src
+pip-audit
+```
 
 ## Integration with AiraMeet
 
