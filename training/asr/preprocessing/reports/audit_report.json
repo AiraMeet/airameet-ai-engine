@@ -1,0 +1,33 @@
+{
+    "task": "AI-DS-01",
+    "dataset": "ArZen",
+    "generated_at_utc": "2026-11-24T19:01:26.855081+00:00",
+    "total_records": 6216,
+    "valid_records": 0,
+    "quarantined_records": 6216,
+    "status_distribution": {
+        "quarantine_snr_review": 6175,
+        "quarantine_short_audio": 34,
+        "quarantine_unreadable": 7
+    },
+    "clipping_distribution": {
+        "No Clipping": 5678,
+        "Very Low": 435,
+        "Moderate": 82,
+        "High": 14,
+        "nan": 7
+    },
+    "validation_rules": {
+        "minimum_duration_seconds": 0.5,
+        "maximum_duration_seconds": 30.0,
+        "target_sample_rate": 16000,
+        "target_channels": 1,
+        "target_subtype": "PCM_16",
+        "snr_boundary_values_require_review": [
+            -20,
+            100
+        ],
+        "moderate_or_high_clipping_requires_review": true
+    },
+    "original_audio_modified": false
+}
