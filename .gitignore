@@ -67,3 +67,5 @@ logs/
 .idea/
 .DS_Store
 Thumbs.db
+# AI-DS-01 local datasets and processed audio
+/training/asr/preprocessing/data/
