@@ -1,4 +1,3 @@
-
 # ==========================================
 # DATASETS
 # ==========================================
@@ -19,13 +18,6 @@
 *.bin
 
 # ==========================================
-# EXPERIMENTS & TRAINING OUTPUTS
-# ==========================================
-
-/training/asr/experiments/*
-!/training/asr/experiments/.gitkeep
-
-# ==========================================
 # PYTHON
 # ==========================================
 
@@ -35,8 +27,15 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 .venv/
 venv/
+.tox/
+build/
+dist/
 
 # ==========================================
 # ENVIRONMENT & SECRETS
@@ -51,6 +50,7 @@ venv/
 # ==========================================
 
 .ipynb_checkpoints/
+**/.ipynb_checkpoints/
 
 # ==========================================
 # LOGS
@@ -60,6 +60,23 @@ venv/
 logs/
 
 # ==========================================
+# GENERATED DATA & RUNTIME OUTPUTS
+# ==========================================
+
+/artifacts/*
+!/artifacts/.gitkeep
+/tmp/
+/temp/
+/temporary/
+*.tmp
+*.temp
+*.wav
+*.mp3
+*.flac
+*.m4a
+*.ogg
+
+# ==========================================
 # IDE & OS
 # ==========================================
 
@@ -67,5 +84,3 @@ logs/
 .idea/
 .DS_Store
 Thumbs.db
-# AI-DS-01 local datasets and processed audio
-/training/asr/preprocessing/data/
