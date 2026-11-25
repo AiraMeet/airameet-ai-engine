@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 import soundfile as sf
 
-from airameet_ai.dataset import (
+from airameet_ai.data_engineering import (
     convert_audio_batch,
     validate_audio_paths,
     validate_metadata_schema,

@@ -34,10 +34,10 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run Ruff Linter
-        run: ruff check src tests
+        run: ruff check src tests main.py notebooks/AI-DS-01.py
 
       - name: Run MyPy Static Type Check
-        run: mypy src tests
+        run: mypy src tests main.py
 
       - name: Run Bandit Security Analysis
         run: bandit -r src
