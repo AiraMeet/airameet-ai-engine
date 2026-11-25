@@ -4,6 +4,7 @@ from .conversion import convert_audio_batch, convert_audio_file
 from .inspection import load_metadata
 from .pipeline import DataEngineeringPipeline, PipelineResults
 from .quality import audit_audio_files, wada_snr
+from .text_pipeline import TextNormalizationPipeline
 from .validation import (
     inspect_metadata,
     metadata_quality_summary,
@@ -13,6 +14,7 @@ from .validation import (
 
 __all__ = [
     "DataEngineeringPipeline",
+    "TextNormalizationPipeline",
     "PipelineResults",
     "audit_audio_files",
     "convert_audio_batch",

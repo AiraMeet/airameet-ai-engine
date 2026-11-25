@@ -162,3 +162,38 @@ The AI Engine processes audio and produces structured outputs for the AiraMeet C
 **Repository:** [AiraMeet/airameet-ai-engine](https://github.com/AiraMeet/airameet-ai-engine)
 
 **Project:** AiraMeet – AI-Powered Meeting and Knowledge Management Platform.
+
+## AI-DS-02: Arabic-English Text Normalization
+
+`notebooks/AI-DS-02.ipynb` is the source implementation. Its Unicode cleanup,
+Arabic diacritic and orthographic rules, punctuation handling, transformation
+order, and regression examples are preserved in reusable modules under
+`src/airameet_ai/data_engineering/conversion/`. Dataset input reuses the
+existing inspection loader; validation and CSV export live in `validation/`
+and `exporting/`. `text_pipeline.py`
+coordinates these stages and also reproduces the
+notebook's in-memory unified schema checks. Only the `text` column is changed;
+input rows and other columns are retained in the exported source metadata.
+
+The input directory must contain the notebook files `Erzen_metadata.csv` and
+`arabic-english-metadata.xlsx`, or the repository layout
+`ArZen_Prepared/metadata.csv` and `Arabic-English-ASR/metadata.xlsx`. The task
+uses UTF-8 CSV input and exports `Erzen_cleaned_metadata.csv` and
+`Arabic_English_cleaned_metadata.csv` as UTF-8 with BOM under
+`data/processed/Arabic-English-ASR/`. Raw input files are never overwritten.
+
+Run only this task with:
+
+```bash
+python main.py --list-tasks
+python main.py --task AI-DS-02
+python main.py --task AI-DS-02 --verbose
+python main.py --task AI-DS-02 --input /path/to/dataset
+python main.py --task AI-DS-02 --output /path/to/output
+pytest tests/unit/ -v
+pytest tests/integration/ -v
+pytest tests/ -v
+```
+
+AI-DS-02 runs independently of AI-DS-01. Future tasks can register an ID in
+`main.py` and reuse these technical components without task-specific packages.

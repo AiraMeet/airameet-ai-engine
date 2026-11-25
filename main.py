@@ -1,33 +1,78 @@
-"""Application entry point for AiraMeet AI Engine."""
+"""Command-line entry point for independently runnable data tasks."""
 
+from __future__ import annotations
+
+import argparse
 import logging
+import sys
+from collections.abc import Sequence
+from dataclasses import replace
+from pathlib import Path
 
 from airameet_ai.core.config import get_settings
 from airameet_ai.core.logger import configure_logging
 from airameet_ai.data_engineering.pipeline import DataEngineeringPipeline
+from airameet_ai.data_engineering.text_pipeline import TextNormalizationPipeline
+
+TASKS = {
+    "AI-DS-01": "Dataset inspection, audio audit, standardization, and handoff",
+    "AI-DS-02": "Arabic and English code-switching text normalization",
+}
 
 
-def main() -> int:
-    """Initialize infrastructure and run the data engineering workflow."""
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="AiraMeet AI Engine")
+    parser.add_argument(
+        "--list-tasks", action="store_true", help="List registered tasks"
+    )
+    parser.add_argument(
+        "--task", choices=tuple(TASKS), help="Run one task independently"
+    )
+    parser.add_argument("--input", type=Path, help="Override the task input directory")
+    parser.add_argument(
+        "--output", type=Path, help="Override the task output directory"
+    )
+    parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
+    return parser
+
+
+def main(argv: Sequence[str] = ()) -> int:
+    """Run a selected task; preserve AI-DS-01 as the default command."""
+    args = _parser().parse_args(argv)
+    if args.list_tasks:
+        for task_id, description in TASKS.items():
+            print(f"{task_id}: {description}")
+        return 0
+
     settings = get_settings()
-    configure_logging(settings.log_level)
+    configure_logging("DEBUG" if args.verbose else settings.log_level)
     logger = logging.getLogger(__name__)
-    logger.info(
-        "%s starting (environment: %s)", settings.app_name, settings.environment
-    )
+    task = args.task or "AI-DS-01"
     try:
-        results = DataEngineeringPipeline(settings).run()
+        if task == "AI-DS-02":
+            input_dir = args.input or settings.raw_data_dir
+            output_dir = (
+                args.output or settings.processed_data_dir / "Arabic-English-ASR"
+            )
+            result = TextNormalizationPipeline(input_dir, output_dir).run()
+            logger.info("AI-DS-02 completed. Outputs: %s", result["outputs"])
+        else:
+            task_settings = settings
+            if args.input:
+                task_settings = replace(task_settings, raw_data_dir=args.input)
+            if args.output:
+                task_settings = replace(task_settings, processed_data_dir=args.output)
+            result = DataEngineeringPipeline(task_settings).run()
+            logger.info(
+                "AI-DS-01 completed. Reports: %s; handoff: %s",
+                result.report_paths,
+                result.handoff_dir,
+            )
     except Exception:
-        logger.exception("Data engineering pipeline failed")
+        logger.exception("%s failed", task)
         return 1
-
-    logger.info(
-        "Pipeline completed. Reports: %s; handoff: %s",
-        results.report_paths,
-        results.handoff_dir,
-    )
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))
