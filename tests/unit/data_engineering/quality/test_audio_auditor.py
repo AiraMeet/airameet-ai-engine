@@ -30,7 +30,9 @@ def _make_wav(
         wf.setframerate(sample_rate)
         frames = bytearray()
         for i in range(num_samples):
-            val = int(32767.0 * amplitude * math.sin(2.0 * math.pi * freq * (i / sample_rate)))
+            val = int(
+                32767.0 * amplitude * math.sin(2.0 * math.pi * freq * (i / sample_rate))
+            )
             for _ in range(channels):
                 frames.extend(struct.pack("<h", val))
         wf.writeframes(frames)
@@ -51,9 +53,7 @@ class TestAuditAudioFiles:
         assert result.loc[0, "error"] is None
 
     def test_valid_stereo_audio_is_readable(self, tmp_path: Path) -> None:
-        _make_wav(
-            tmp_path / "audio" / "stereo.wav", channels=2, duration=0.5
-        )
+        _make_wav(tmp_path / "audio" / "stereo.wav", channels=2, duration=0.5)
         df = pd.DataFrame({"audio_path": ["audio/stereo.wav"]})
 
         result = audit_audio_files(df, tmp_path)
@@ -149,9 +149,7 @@ class TestAuditAudioFiles:
         raw_root = tmp_path / "raw"
         processed_root = tmp_path / "processed"
         # Create audio only in processed, not in raw
-        processed_file = _make_wav(
-            processed_root / "audio" / "file.wav", duration=0.5
-        )
+        processed_file = _make_wav(processed_root / "audio" / "file.wav", duration=0.5)
         raw_root.mkdir(parents=True, exist_ok=True)
 
         df = pd.DataFrame({"audio_path": ["audio/file.wav"]})
@@ -214,7 +212,6 @@ class TestAuditAudioFiles:
         assert isinstance(result, pd.DataFrame)
         assert len(result) == 0
 
-
     def test_snr_success_on_tonal_audio(self, tmp_path: Path) -> None:
         """Longer tonal audio should yield a successful WADA-SNR estimate."""
         _make_wav(tmp_path / "audio" / "tone.wav", duration=1.0, amplitude=0.4)
@@ -225,4 +222,3 @@ class TestAuditAudioFiles:
         assert bool(result.loc[0, "readable"]) is True
         assert result.loc[0, "snr_status"] == "success"
         assert result.loc[0, "snr_db"] is not None
-

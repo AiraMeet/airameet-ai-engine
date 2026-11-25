@@ -68,4 +68,3 @@ class TestWadaSnr:
         impulse[0] = 1.0
         snr = wada_snr(impulse)
         assert snr == 100.0
-

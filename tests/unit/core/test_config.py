@@ -73,7 +73,9 @@ class TestGetSettings:
         settings = get_settings()
         assert isinstance(settings, Settings)
 
-    def test_default_environment_from_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_default_environment_from_env(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         monkeypatch.setenv("AIRAMEET_ENV", "staging")
         settings = get_settings()
         assert settings.environment == "staging"
@@ -125,7 +127,7 @@ class TestGetSettings:
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         env_file = tmp_path / ".env"
-        env_file.write_text('AIRAMEET_ENV=test_from_file\n', encoding="utf-8")
+        env_file.write_text("AIRAMEET_ENV=test_from_file\n", encoding="utf-8")
 
         # Patch PROJECT_ROOT to point to tmp_path so get_settings finds the .env
         import airameet_ai.core.config as config_module

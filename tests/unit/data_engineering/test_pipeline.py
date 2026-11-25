@@ -160,4 +160,7 @@ class TestLoadDatasetsPathResolution:
         settings = get_settings()
         assert settings.raw_data_dir == PROJECT_ROOT / "data"
         expected_metadata = settings.raw_data_dir / "ArZen_Prepared" / "metadata.csv"
-        assert expected_metadata == PROJECT_ROOT / "data" / "ArZen_Prepared" / "metadata.csv"
+        assert (
+            expected_metadata
+            == PROJECT_ROOT / "data" / "ArZen_Prepared" / "metadata.csv"
+        )

@@ -43,6 +43,9 @@ addopts = "-v --strict-markers"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
+    "data_validation: Metadata and input validation tests",
+    "audio_processing: Audio loading, conversion, and quality tests",
+    "error_handling: Error and invalid-input handling tests",
     "slow: Tests that take longer to execute",
 ]
 

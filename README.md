@@ -132,12 +132,18 @@ To run stages interactively, open `notebooks/AI-DS-01.py` in VS Code and execute
 See [docs/testing.md](docs/testing.md).
 
 ```bash
-pytest --cov=airameet_ai --cov-report=term-missing
-ruff check src tests main.py notebooks/AI-DS-01.py
+pytest
+pytest -m 'unit and not integration'
+pytest -m integration
+pytest --cov=airameet_ai --cov-branch --cov-report=term-missing --cov-report=xml --cov-report=html
+ruff check src tests main.py notebooks/AI-DS-01.py .github/scripts/ci_summary.py
+ruff format --check src tests main.py notebooks/AI-DS-01.py .github/scripts/ci_summary.py
 mypy src tests main.py
 bandit -r src
 pip-audit
 ```
+
+See [docs/testing.md](docs/testing.md) for category markers, JUnit output, detailed report commands, and CI artifact guidance.
 
 ## Integration with AiraMeet
 

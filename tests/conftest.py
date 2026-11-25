@@ -12,6 +12,33 @@ import pandas as pd
 import pytest
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    """Register test categories used for local runs and CI reporting."""
+    del config
+
+
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    """Assign stable category markers from the maintained test layout."""
+    for item in items:
+        path = Path(str(item.path)).as_posix()
+        if "/tests/unit/" in path:
+            item.add_marker(pytest.mark.unit)
+        elif "/tests/integration/" in path:
+            item.add_marker(pytest.mark.integration)
+
+        if "/validation/" in path or "test_metadata" in path:
+            item.add_marker(pytest.mark.data_validation)
+        if any(
+            category in path for category in ("/conversion/", "/quality/", "test_audio")
+        ):
+            item.add_marker(pytest.mark.audio_processing)
+        if any(
+            term in item.name.lower()
+            for term in ("error", "raise", "fail", "missing", "corrupt", "invalid")
+        ):
+            item.add_marker(pytest.mark.error_handling)
+
+
 @pytest.fixture
 def make_wav_file() -> Callable[..., Path]:
     """Factory fixture to create tiny synthetic 16-bit PCM WAV files."""

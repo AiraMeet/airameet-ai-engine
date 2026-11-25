@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: read
@@ -14,68 +14,188 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-and-security:
-    name: Code Quality & Security
+  code-quality:
+    name: Code Quality
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Ruff lint
+        run: ruff check --output-format json src tests main.py notebooks/AI-DS-01.py .github/scripts/ci_summary.py > ruff.json
+      - name: Ruff format check
+        if: always()
+        run: ruff format --check src tests main.py notebooks/AI-DS-01.py .github/scripts/ci_summary.py | tee ruff-format.txt
+      - name: MyPy
+        if: always()
+        run: mypy --show-error-codes src tests main.py .github/scripts/ci_summary.py | tee mypy.txt
+      - name: Upload quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-quality-reports
+          path: |
+            ruff.json
+            ruff-format.txt
+            mypy.txt
+          if-no-files-found: warn
+          retention-days: 14
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade "setuptools>=84.1.0"
-          pip install -r requirements-dev.txt
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Bandit
+        run: bandit -r src -f json -o bandit.json
+      - name: pip-audit
+        if: always()
+        run: pip-audit -f json -o pip-audit.json
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            bandit.json
+            pip-audit.json
+          if-no-files-found: warn
+          retention-days: 14
 
-      - name: Run Ruff Linter
-        run: ruff check src tests main.py notebooks/AI-DS-01.py
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Run unit tests
+        run: pytest -m 'unit and not integration' --junitxml=junit-unit.xml --durations=20 | tee unit-tests.log
+      - name: Upload unit test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: |
+            junit-unit.xml
+            unit-tests.log
+          if-no-files-found: warn
+          retention-days: 14
 
-      - name: Run MyPy Static Type Check
-        run: mypy src tests main.py
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Run integration tests
+        run: pytest -m integration --junitxml=junit-integration.xml --durations=20 | tee integration-tests.log
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            junit-integration.xml
+            integration-tests.log
+          if-no-files-found: warn
+          retention-days: 14
 
-      - name: Run Bandit Security Analysis
-        run: bandit -r src
-
-      - name: Run pip-audit Vulnerability Scan
-        run: pip-audit
-
-  test:
-    name: Test (Python ${{ matrix.python-version }})
+  python-compatibility:
+    name: Python ${{ matrix.python-version }} Compatibility
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
-
-      - name: Install dependencies
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Run full test suite
+        run: pytest --junitxml=junit-${{ matrix.python-version }}.xml | tee tests-${{ matrix.python-version }}.log
+      - name: Record compatibility result
+        if: always()
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade "setuptools>=84.1.0"
-          pip install -r requirements-dev.txt
-
-      - name: Run pytest with coverage
-        run: |
-          pytest --cov=airameet_ai --cov-report=term-missing --cov-report=xml
-
-      - name: Upload coverage artifact
+          echo "${{ matrix.python-version }}: ${{ job.status }}" > compatibility-status.txt
+      - name: Upload compatibility results
+        if: always()
         uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.11'
         with:
-          name: coverage-report
-          path: coverage.xml
+          name: python-${{ matrix.python-version }}-results
+          path: |
+            junit-${{ matrix.python-version }}.xml
+            tests-${{ matrix.python-version }}.log
+            compatibility-status.txt
+          if-no-files-found: warn
           retention-days: 14
+
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Run tests and generate coverage
+        run: pytest --cov=airameet_ai --cov-branch --cov-report=term-missing --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=junit-coverage.xml | tee coverage-tests.log
+      - name: Upload coverage and test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-and-test-reports
+          path: |
+            htmlcov/
+            coverage.xml
+            junit-coverage.xml
+            coverage-tests.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  ci-summary:
+    name: CI Summary
+    if: always()
+    needs:
+      - code-quality
+      - security-audit
+      - unit-tests
+      - integration-tests
+      - python-compatibility
+      - coverage-report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: ci-artifacts
+      - name: Write job summary
+        env:
+          QUALITY_RESULT: ${{ needs.code-quality.result }}
+          SECURITY_RESULT: ${{ needs.security-audit.result }}
+          UNIT_RESULT: ${{ needs.unit-tests.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-tests.result }}
+          COMPATIBILITY_RESULT: ${{ needs.python-compatibility.result }}
+          COVERAGE_RESULT: ${{ needs.coverage-report.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python .github/scripts/ci_summary.py

@@ -90,9 +90,7 @@ class TestLoadMetadata:
     def test_csv_preserves_utf8_bom_encoding(self, tmp_path: Path) -> None:
         csv_file = tmp_path / "metadata.csv"
         # Write with BOM (utf-8-sig)
-        csv_file.write_text(
-            "meeting,text\nM1,Hello\nM2,World\n", encoding="utf-8-sig"
-        )
+        csv_file.write_text("meeting,text\nM1,Hello\nM2,World\n", encoding="utf-8-sig")
 
         df = load_metadata(csv_file)
 

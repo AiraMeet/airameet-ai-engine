@@ -19,9 +19,10 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path.cwd().resolve()
-while PROJECT_ROOT != PROJECT_ROOT.parent and not (
-    PROJECT_ROOT / "pyproject.toml"
-).is_file():
+while (
+    PROJECT_ROOT != PROJECT_ROOT.parent
+    and not (PROJECT_ROOT / "pyproject.toml").is_file()
+):
     PROJECT_ROOT = PROJECT_ROOT.parent
 
 if not (PROJECT_ROOT / "pyproject.toml").is_file():
@@ -90,9 +91,7 @@ if conversion_results:
 
 arabic_audio_audit = pipeline.audit_arabic_english()
 print("Arabic-English-ASR final_audit_status:")
-print(
-    arabic_audio_audit["final_audit_status"].value_counts(dropna=False).to_string()
-)
+print(arabic_audio_audit["final_audit_status"].value_counts(dropna=False).to_string())
 
 # %% 8. Write audit reports and quarantine / review ledgers
 
