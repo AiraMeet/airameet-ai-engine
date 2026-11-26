@@ -43,6 +43,7 @@ src/airameet_ai/
 ├── core/                      # Settings, logging, base exceptions
 └── data_engineering/
     ├── conversion/            # WAV mono 16 kHz PCM standardization
+    ├── normalization/         # Reusable Arabic-English text normalization
     ├── validation/            # Metadata inspection and path checks
     ├── inspection/            # Metadata loaders (CSV / Excel)
     ├── quality/               # Audio audit + WADA-SNR
@@ -64,6 +65,7 @@ Application configuration, logging, and shared exceptions.
 | `inspection/` | Load CSV/Excel metadata without modifying sources. |
 | `validation/` | Schema, quality, and audio-path validation. |
 | `conversion/` | Convert audio to WAV / mono / 16 kHz / PCM_16. |
+| `normalization/` | Unicode, Arabic, English preservation, code-switching, and punctuation stages. |
 | `quality/` | Full-file audio audit and WADA-SNR. |
 | `pipeline.py` | Ordered stages: load → inspect → audit → convert → report → handoff. |
 
@@ -168,7 +170,11 @@ The AI Engine processes audio and produces structured outputs for the AiraMeet C
 `notebooks/AI-DS-02.ipynb` is the source implementation. Its Unicode cleanup,
 Arabic diacritic and orthographic rules, punctuation handling, transformation
 order, and regression examples are preserved in reusable modules under
-`src/airameet_ai/data_engineering/conversion/`. Dataset input reuses the
+`src/airameet_ai/data_engineering/normalization/`. Modules cover Arabic
+orthography, unchanged English and mixed text, selected punctuation, and the
+ordered Unicode/text processor. It exposes `TextProcessor` and `normalize_text`; import with
+`from airameet_ai.data_engineering.normalization.text_processor import TextProcessor`.
+Dataset input reuses the
 existing inspection loader; validation and CSV export live in `validation/`
 and `exporting/`. `text_pipeline.py`
 coordinates these stages and also reproduces the
@@ -193,6 +199,7 @@ python main.py --task AI-DS-02 --output /path/to/output
 pytest tests/unit/ -v
 pytest tests/integration/ -v
 pytest tests/ -v
+pytest tests/unit/data_engineering/normalization/ -v
 ```
 
 AI-DS-02 runs independently of AI-DS-01. Future tasks can register an ID in

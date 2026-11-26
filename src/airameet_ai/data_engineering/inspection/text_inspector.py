@@ -45,7 +45,7 @@ def preview_normalization(frame: pd.DataFrame, sample_size: int = 20) -> pd.Data
     """Return the notebook's before/after/changed preview as a DataFrame."""
     if "text" not in frame.columns:
         raise ValueError("Required column 'text' was not found")
-    from airameet_ai.data_engineering.conversion import normalize_text
+    from airameet_ai.data_engineering.normalization import normalize_text
 
     sample = frame[["text"]].head(sample_size).copy()
     sample["normalized_text"] = sample["text"].map(

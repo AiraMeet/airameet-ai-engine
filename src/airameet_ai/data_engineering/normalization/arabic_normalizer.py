@@ -1,4 +1,4 @@
-"""Arabic text transformations extracted from the AI-DS-02 notebook."""
+"""Arabic transformations preserved from the AI-DS-02 notebook."""
 
 import re
 
@@ -9,14 +9,14 @@ ARABIC_CHAR_TRANSLATION = str.maketrans(
 
 
 def remove_arabic_diacritics(text: str) -> str:
-    """Remove the Arabic diacritics covered by the notebook's regex."""
+    """Remove the Arabic diacritics matched by the notebook's regex."""
     if not isinstance(text, str):
         raise TypeError("text must be a string")
     return ARABIC_DIACRITICS_PATTERN.sub("", text)
 
 
 def normalize_arabic_orthography(text: str) -> str:
-    """Apply the notebook's Arabic character map and remove tatweel."""
+    """Apply the notebook's character map and remove tatweel."""
     if not isinstance(text, str):
         raise TypeError("text must be a string")
     return text.translate(ARABIC_CHAR_TRANSLATION).replace("ـ", "")

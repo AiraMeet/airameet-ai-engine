@@ -2,7 +2,8 @@
 
 import pytest
 
-from airameet_ai.data_engineering.conversion import (
+from airameet_ai.data_engineering.normalization import (
+    TextProcessor,
     normalize_arabic_orthography,
     normalize_english,
     normalize_punctuation,
@@ -140,3 +141,7 @@ def test_large_text_field_is_processed_without_truncation() -> None:
     source = "GPT-6 " * 20_000 + "أَحْمَد"
     result = normalize_text(source)
     assert result == "GPT-6 " * 20_000 + "احمد"
+
+
+def test_text_processor_class_uses_full_original_sequence() -> None:
+    assert TextProcessor().process('"أهلاً بـ GPT-6"') == "اهلا ب GPT-6"

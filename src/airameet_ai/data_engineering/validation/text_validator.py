@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from airameet_ai.data_engineering.conversion import normalize_text
+from airameet_ai.data_engineering.normalization import normalize_text
 
 
 def validate_cleaned_dataset(original: pd.DataFrame, cleaned: pd.DataFrame) -> None:

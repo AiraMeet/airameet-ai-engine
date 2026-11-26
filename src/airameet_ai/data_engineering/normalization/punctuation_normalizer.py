@@ -1,4 +1,4 @@
-"""Punctuation and annotation handling extracted from AI-DS-02."""
+"""Punctuation and annotation handling from AI-DS-02."""
 
 REMOVABLE_PUNCTUATION = str.maketrans(
     dict.fromkeys(('"', "“", "”", "«", "»", "(", ")", "{", "}"))
@@ -6,7 +6,7 @@ REMOVABLE_PUNCTUATION = str.maketrans(
 
 
 def normalize_punctuation(text: str) -> str:
-    """Remove selected quotes/brackets and outer paired single quotes."""
+    """Remove selected quote/bracket characters and paired outer quotes."""
     if not isinstance(text, str):
         raise TypeError("text must be a string")
     text = text.translate(REMOVABLE_PUNCTUATION)

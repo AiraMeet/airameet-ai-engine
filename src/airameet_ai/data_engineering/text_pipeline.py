@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from airameet_ai.data_engineering.conversion import normalize_text
 from airameet_ai.data_engineering.exporting import export_metadata
 from airameet_ai.data_engineering.inspection import load_metadata, profile_text
+from airameet_ai.data_engineering.normalization import normalize_text
 from airameet_ai.data_engineering.validation.text_validator import (
     validate_cleaned_dataset,
     validate_unified_metadata,
