@@ -12,6 +12,7 @@ class TestPackageExports:
         expected = {
             "DataEngineeringPipeline",
             "PipelineResults",
+            "TextNormalizationPipeline",
             "audit_audio_files",
             "convert_audio_batch",
             "convert_audio_file",
