@@ -56,7 +56,6 @@ def build_unified_metadata(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Perform the notebook's final source-specific schema standardization."""
     required_erzen = [
-        "status",
         "utt_id",
         *COMMON_COLUMNS[1:3],
         "split",
@@ -69,14 +68,19 @@ def build_unified_metadata(
     missing = [column for column in required_erzen if column not in erzen.columns]
     if missing:
         raise ValueError(f"Erzen metadata is missing columns: {missing}")
-    erzen_rows = erzen.loc[
-        erzen["status"]
-        .astype("string")
-        .str.strip()
-        .str.lower()
-        .eq("success")
-        .fillna(False)
-    ].copy()
+    if "status" in erzen.columns:
+        successful_rows = (
+            erzen["status"]
+            .astype("string")
+            .str.strip()
+            .str.lower()
+            .eq("success")
+            .fillna(False)
+        )
+        erzen_rows = erzen.loc[successful_rows].copy()
+    else:
+        # Some prepared Erzen metadata exports omit the processing status.
+        erzen_rows = erzen.copy()
     erzen_rows = erzen_rows.rename(columns={"utt_id": "utterance_id"})
     erzen_rows["source_dataset"] = "Erzen"
     erzen_rows["utterance_id"] = "erzen_" + erzen_rows["utterance_id"].astype(str)
