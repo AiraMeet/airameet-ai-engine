@@ -1,0 +1,164 @@
+{
+  "accepted_rows_excluded_unresolved_audio": {},
+  "group_key": [
+    "source_dataset",
+    "recording_id"
+  ],
+  "included_sources": [
+    "Erzen"
+  ],
+  "methodology": {
+    "duration": "validated duration seconds; hours = seconds/3600; linear-interpolated quantiles",
+    "ratios": "actual utterance and group fractions; row fractions are not guaranteed to equal targets",
+    "vocabulary": "whitespace tokenization; case-sensitive; punctuation retained"
+  },
+  "release": "data-v1.0",
+  "seed": 42,
+  "source_blockers": {
+    "Arabic-English": "No authoritative recording_id field in cleaned metadata; meeting/split labels are not used as group IDs. 12472/12472 audio paths do not resolve to files inside the repository; those rows cannot enter this release.",
+    "Erzen": "7/6216 audio paths do not resolve to files inside the repository; those rows cannot enter this release."
+  },
+  "splits": {
+    "test": {
+      "duration": {
+        "count": 253,
+        "hours": 0.43936944444444465,
+        "max": 23.19,
+        "mean": 6.251897233201584,
+        "median": 5.37,
+        "min": 0.39,
+        "q25": 2.95,
+        "q75": 8.5,
+        "q90": 13.364000000000004,
+        "q95": 14.623999999999997,
+        "total_seconds": 1581.7300000000007
+      },
+      "group_ratio": 0.10714285714285714,
+      "groups": 12,
+      "sources": {
+        "Erzen": 253
+      },
+      "speakers": {
+        "I01": 90,
+        "I02": 163
+      },
+      "utterance_ratio": 0.04074730230310839,
+      "utterances": 253,
+      "vocabulary": {
+        "token_count": 3937,
+        "tokenization": "whitespace; case-sensitive; punctuation retained",
+        "unique_token_count": 1011
+      }
+    },
+    "train": {
+      "duration": {
+        "count": 5454,
+        "hours": 9.94467222222221,
+        "max": 24.94,
+        "mean": 6.564140080674726,
+        "median": 5.33,
+        "min": 0.26,
+        "q25": 2.84,
+        "q75": 9.1,
+        "q90": 13.466999999999999,
+        "q95": 16.393499999999996,
+        "total_seconds": 35800.819999999956
+      },
+      "group_ratio": 0.7857142857142857,
+      "groups": 88,
+      "sources": {
+        "Erzen": 5454
+      },
+      "speakers": {
+        "I01": 904,
+        "I02": 464,
+        "S01": 91,
+        "S02": 114,
+        "S03": 110,
+        "S04": 178,
+        "S05": 162,
+        "S06": 194,
+        "S07": 203,
+        "S08": 100,
+        "S09": 127,
+        "S10": 115,
+        "S12": 116,
+        "S13": 96,
+        "S14": 99,
+        "S15": 116,
+        "S16": 133,
+        "S18": 109,
+        "S19": 72,
+        "S20": 85,
+        "S21": 169,
+        "S22": 112,
+        "S23": 138,
+        "S24": 141,
+        "S26": 116,
+        "S27": 157,
+        "S28": 84,
+        "S29": 106,
+        "S30": 99,
+        "S32": 127,
+        "S33": 71,
+        "S34": 76,
+        "S35": 94,
+        "S36": 133,
+        "S37": 96,
+        "S38": 90,
+        "S39": 57
+      },
+      "utterance_ratio": 0.8784023192140441,
+      "utterances": 5454,
+      "vocabulary": {
+        "token_count": 90843,
+        "tokenization": "whitespace; case-sensitive; punctuation retained",
+        "unique_token_count": 11924
+      }
+    },
+    "val": {
+      "duration": {
+        "count": 502,
+        "hours": 1.0001111111111118,
+        "max": 24.8,
+        "mean": 7.172111553784865,
+        "median": 6.075,
+        "min": 0.4,
+        "q25": 3.4225000000000003,
+        "q75": 9.53,
+        "q90": 13.67,
+        "q95": 17.688,
+        "total_seconds": 3600.4000000000024
+      },
+      "group_ratio": 0.10714285714285714,
+      "groups": 12,
+      "sources": {
+        "Erzen": 502
+      },
+      "speakers": {
+        "I01": 104,
+        "I02": 60,
+        "S17": 133,
+        "S25": 143,
+        "S31": 62
+      },
+      "utterance_ratio": 0.08085037848284748,
+      "utterances": 502,
+      "vocabulary": {
+        "token_count": 8110,
+        "tokenization": "whitespace; case-sensitive; punctuation retained",
+        "unique_token_count": 2302
+      }
+    }
+  },
+  "status": "partial",
+  "target_ratios": {
+    "test": 0.1,
+    "train": 0.8,
+    "validation": 0.1
+  },
+  "validation_rejected_rows": {
+    "Arabic-English": 12472,
+    "Erzen": 7
+  }
+}
