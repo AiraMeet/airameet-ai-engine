@@ -9,14 +9,16 @@ from collections.abc import Sequence
 from dataclasses import replace
 from pathlib import Path
 
-from airameet_ai.core.config import get_settings
+from airameet_ai.core.config import PROJECT_ROOT, get_settings
 from airameet_ai.core.logger import configure_logging
+from airameet_ai.data_engineering.grouped_release import DatasetReleasePipeline
 from airameet_ai.data_engineering.pipeline import DataEngineeringPipeline
 from airameet_ai.data_engineering.text_pipeline import TextNormalizationPipeline
 
 TASKS = {
     "AI-DS-01": "Dataset inspection, audio audit, standardization, and handoff",
     "AI-DS-02": "Arabic and English code-switching text normalization",
+    "AI-DS-03": "Leak-free grouped manifests and dataset release statistics",
 }
 
 
@@ -56,6 +58,16 @@ def main(argv: Sequence[str] = ()) -> int:
             )
             result = TextNormalizationPipeline(input_dir, output_dir).run()
             logger.info("AI-DS-02 completed. Outputs: %s", result["outputs"])
+        elif task == "AI-DS-03":
+            result = DatasetReleasePipeline(
+                args.input or settings.processed_data_dir / "Arabic-English-ASR",
+                settings.raw_data_dir,
+                args.output or PROJECT_ROOT / "data" / "releases" / "data-v1.1",
+                settings.artifacts_dir
+                / "data_engineering"
+                / "reports",
+            ).run()
+            logger.info("AI-DS-03 data-v1.1 completed: %s", result)
         else:
             task_settings = settings
             if args.input:

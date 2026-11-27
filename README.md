@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <strong>Project status:</strong> Dataset inspection, audio quality auditing, standardization, reporting, and handoff are implemented. AI services are planned.
+  <strong>Project status:</strong> Dataset inspection, normalization, grouped release manifests, audio quality auditing, standardization, reporting, and handoff are implemented. AI services are planned.
 </p>
 
 <p align="center">
@@ -47,6 +47,12 @@ src/airameet_ai/
     ├── validation/            # Metadata inspection and path checks
     ├── inspection/            # Metadata loaders (CSV / Excel)
     ├── quality/               # Audio audit + WADA-SNR
+    ├── grouped_release/        # Grouped release orchestration and validation
+    │   ├── metadata/          # Cleaned source loading and recording identity
+    │   ├── grouping/          # Recording and exact-audio grouping
+    │   ├── splitting/         # Split generation and integrity checks
+    │   ├── statistics/        # Partition statistics
+    │   └── release/           # Manifest serialization and checksums
     └── pipeline.py            # End-to-end orchestration
 notebooks/
 └── AI-DS-01.py                # Interactive # %% cells for the same pipeline
@@ -69,7 +75,7 @@ Application configuration, logging, and shared exceptions.
 | `quality/` | Full-file audio audit and WADA-SNR. |
 | `pipeline.py` | Ordered stages: load → inspect → audit → convert → report → handoff. |
 
-Source datasets remain read-only. Converted audio and handoff trees are written under `data/processed/`. Reports go under `artifacts/data_engineering/reports/`.
+Source datasets remain read-only. Converted audio and handoff trees are written under `data/processed/`. Data Engineering reports are stored under `artifacts/data_engineering/reports/`, categorized by type and release or run. Release snapshots retain their own report copies so their checksums remain self-contained.
 
 ### 3. Planned modules (not implemented yet)
 
@@ -204,3 +210,32 @@ pytest tests/unit/data_engineering/normalization/ -v
 
 AI-DS-02 runs independently of AI-DS-01. Future tasks can register an ID in
 `main.py` and reuse these technical components without task-specific packages.
+
+## AI-DS-03: Leak-Free Grouped Dataset Release
+
+`python main.py --task AI-DS-03` reads AI-DS-02 cleaned CSV exports from
+`data/processed/Arabic-English-ASR/` and creates a new `data-v1.1` release under
+`data/releases/data-v1.1/`. Override the metadata input directory with `--input`
+and the new release directory with `--output`. Existing release directories
+are never overwritten. The v1.1 workflow parses Erzen interview sessions from
+verified source recording identifiers, gives each Arabic-English WAV a distinct
+recording ID, and links it to an Erzen session only after an exact SHA256 match.
+Unmatched Arabic-English session IDs remain unknown. Exact duplicate audio stays
+in one split, while transcript mismatches are retained and reported for review.
+Audio is copied and harmonized to mono 16 kHz PCM16 in the new release. The
+release report does not claim session independence for unmatched Arabic-English
+records and marks unresolved transcript conflicts.
+
+The prior v1.0 artifacts remain in place. The original v1.0 implementation is
+still available as `GroupedReleasePipeline`; the CLI creates v1.1 only. The
+release includes corrected CSV metadata, harmonized audio copies, deterministic
+JSONL manifests, SHA256 checksums, and JSON/Markdown audit reports. Its split
+targets 80/10/10 recording-group proportions using seed 42; utterance shares can
+differ because Erzen interview sessions contain unequal numbers of utterances.
+The exact-hash duplicate report retains both copies and every transcript pair.
+Its 593 normalized-text mismatches are left unadjudicated and the release is
+marked as requiring review before model training. No unmatched Arabic-English
+record is claimed to have session-level independence. The output directory is
+created atomically and an existing destination causes a failure. Central report
+copies are stored under the categorized `artifacts/data_engineering/reports/`
+tree; report archival refuses to replace different content.
