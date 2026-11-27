@@ -1,0 +1,2 @@
+﻿utt_id,audio_path,text,split,speaker_id,recording_id,start,end,duration,status
+one,a.wav,احمد,train,s,r,0.0,1.0,1.0,success
