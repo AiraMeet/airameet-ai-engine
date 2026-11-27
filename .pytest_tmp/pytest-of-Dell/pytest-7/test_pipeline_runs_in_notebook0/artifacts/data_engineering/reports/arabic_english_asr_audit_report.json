@@ -1,0 +1,12 @@
+{
+  "task": "AI-DS-01",
+  "dataset": "Arabic-English-ASR",
+  "generated_at_utc": "2026-11-27T15:13:50.593205+00:00",
+  "total_records": 1,
+  "valid_records": 0,
+  "review_and_quarantine_records": 1,
+  "status_counts": {
+    "review_snr_boundary": 1
+  },
+  "original_audio_modified": false
+}
