@@ -14,6 +14,7 @@ from airameet_ai.core.logger import configure_logging
 from airameet_ai.data_engineering.grouped_release.consolidated_dataset import (
     ConsolidatedDatasetPipeline,
 )
+from airameet_ai.data_engineering.grouped_release.pipeline import DatasetReleasePipeline
 from airameet_ai.data_engineering.pipeline import DataEngineeringPipeline
 from airameet_ai.data_engineering.text_pipeline import TextNormalizationPipeline
 from scripts.dataset_consolidation.consolidate_asr_dataset import consolidate, verify
@@ -22,6 +23,7 @@ TASKS = {
     "AI-DS-01": "Dataset inspection, audio audit, standardization, and handoff",
     "AI-DS-02": "Arabic and English code-switching text normalization",
     "AI-DS-03": "Leak-free grouped manifests and dataset release statistics",
+    "DATASET-RELEASE": "Build the grouped data-v1.1 release from cleaned metadata and source audio",
     "DATASET-CONSOLIDATION": "Safely consolidate and verify the normalized ASR dataset",
 }
 
@@ -85,6 +87,16 @@ def main(argv: Sequence[str] = ()) -> int:
             logger.info("Dataset consolidation %s: %s", mode, result)
             if result["status"] not in {"passed", "dry-run"}:
                 return 1
+        elif task == "DATASET-RELEASE":
+            metadata_dir = args.input or settings.processed_data_dir / "Arabic-English-ASR"
+            release_dir = args.output or PROJECT_ROOT / "data" / "releases" / "data-v1.1"
+            result = DatasetReleasePipeline(
+                metadata_dir,
+                PROJECT_ROOT / "data",
+                release_dir,
+                settings.artifacts_dir / "data_engineering" / "reports",
+            ).run()
+            logger.info("Grouped dataset release created: %s", result)
         elif task == "AI-DS-03":
             result = ConsolidatedDatasetPipeline(
                 args.input or PROJECT_ROOT / "data" / "asr-dataset",

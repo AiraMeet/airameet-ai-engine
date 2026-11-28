@@ -213,11 +213,18 @@ AI-DS-02 runs independently of AI-DS-01. Future tasks can register an ID in
 
 ## AI-DS-03: Leak-Free Grouped Dataset Release
 
-`python main.py --task AI-DS-03` reads AI-DS-02 cleaned CSV exports from
+`python main.py --task DATASET-RELEASE` reads AI-DS-02 cleaned CSV exports from
 `data/processed/Arabic-English-ASR/` and creates a new `data-v1.1` release under
-`data/releases/data-v1.1/`. Override the metadata input directory with `--input`
-and the new release directory with `--output`. Existing release directories
-are never overwritten. The v1.1 workflow parses Erzen interview sessions from
+`data/releases/data-v1.1/`. Its required inputs are
+`Erzen_cleaned_metadata.csv` and `Arabic_English_cleaned_metadata.csv`, plus the
+source audio under `data/ArZen_Prepared/` and `data/Arabic-English-ASR/`.
+Override the metadata input directory with `--input` and the new release
+directory with `--output`. Existing release directories are never overwritten.
+After release generation, run
+`python main.py --task DATASET-CONSOLIDATION --mode merge` to create the
+portable `data/asr-dataset/` dataset. Then `python main.py --task AI-DS-03`
+validates its manifests and audio and writes consolidated statistics.
+The v1.1 workflow parses Erzen interview sessions from
 verified source recording identifiers, gives each Arabic-English WAV a distinct
 recording ID, and links it to an Erzen session only after an exact SHA256 match.
 Unmatched Arabic-English session IDs remain unknown. Exact duplicate audio stays
@@ -227,7 +234,7 @@ release report does not claim session independence for unmatched Arabic-English
 records and marks unresolved transcript conflicts.
 
 The prior v1.0 artifacts remain in place. The original v1.0 implementation is
-still available as `GroupedReleasePipeline`; the CLI creates v1.1 only. The
+still available as `GroupedReleasePipeline`. The
 release includes corrected CSV metadata, harmonized audio copies, deterministic
 JSONL manifests, SHA256 checksums, and JSON/Markdown audit reports. Its split
 targets 80/10/10 recording-group proportions using seed 42; utterance shares can

@@ -67,7 +67,7 @@ def test_ai_ds_03_cli_uses_project_defaults(monkeypatch: pytest.MonkeyPatch, tmp
     }
 
 
-def test_ai_ds_03_never_invokes_v11_release_builder(
+def test_dataset_release_cli_uses_project_defaults(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     settings = Settings(
@@ -77,21 +77,28 @@ def test_ai_ds_03_never_invokes_v11_release_builder(
     )
     monkeypatch.setattr(app_main, "get_settings", lambda: settings)
     monkeypatch.setattr(app_main, "configure_logging", lambda _level: None)
+    captured = {}
 
-    class FakeConsolidatedPipeline:
-        def __init__(self, *_args):
-            pass
+    class FakeReleaseBuilder:
+        def __init__(self, metadata_dir, data_root, release_dir, reports_root):
+            captured.update(
+                metadata_dir=metadata_dir,
+                data_root=data_root,
+                release_dir=release_dir,
+                reports_root=reports_root,
+            )
 
         def run(self):
-            return {"dataset": "asr-dataset"}
+            return {"release": "data-v1.1"}
 
-    class ForbiddenReleaseBuilder:
-        def __init__(self, *_args):
-            raise AssertionError("AI-DS-03 must not invoke the v1.1 release builder")
-
-    monkeypatch.setattr(app_main, "ConsolidatedDatasetPipeline", FakeConsolidatedPipeline)
-    monkeypatch.setattr(app_main, "DatasetReleasePipeline", ForbiddenReleaseBuilder, raising=False)
-    assert app_main.main(["--task", "AI-DS-03"]) == 0
+    monkeypatch.setattr(app_main, "DatasetReleasePipeline", FakeReleaseBuilder)
+    assert app_main.main(["--task", "DATASET-RELEASE"]) == 0
+    assert captured == {
+        "metadata_dir": settings.processed_data_dir / "Arabic-English-ASR",
+        "data_root": app_main.PROJECT_ROOT / "data",
+        "release_dir": app_main.PROJECT_ROOT / "data" / "releases" / "data-v1.1",
+        "reports_root": settings.artifacts_dir / "data_engineering" / "reports",
+    }
 
 
 def test_invalid_cli_task_is_rejected_by_parser() -> None:
