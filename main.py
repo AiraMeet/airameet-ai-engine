@@ -9,14 +9,22 @@ from collections.abc import Sequence
 from dataclasses import replace
 from pathlib import Path
 
-from airameet_ai.core.config import get_settings
+from airameet_ai.core.config import PROJECT_ROOT, get_settings
 from airameet_ai.core.logger import configure_logging
+from airameet_ai.data_engineering.grouped_release.consolidated_dataset import (
+    ConsolidatedDatasetPipeline,
+)
+from airameet_ai.data_engineering.grouped_release.pipeline import DatasetReleasePipeline
 from airameet_ai.data_engineering.pipeline import DataEngineeringPipeline
 from airameet_ai.data_engineering.text_pipeline import TextNormalizationPipeline
+from scripts.dataset_consolidation.consolidate_asr_dataset import consolidate, verify
 
 TASKS = {
     "AI-DS-01": "Dataset inspection, audio audit, standardization, and handoff",
     "AI-DS-02": "Arabic and English code-switching text normalization",
+    "AI-DS-03": "Leak-free grouped manifests and dataset release statistics",
+    "DATASET-RELEASE": "Build the grouped data-v1.1 release from cleaned metadata and source audio",
+    "DATASET-CONSOLIDATION": "Safely consolidate and verify the normalized ASR dataset",
 }
 
 
@@ -33,6 +41,11 @@ def _parser() -> argparse.ArgumentParser:
         "--output", type=Path, help="Override the task output directory"
     )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
+    parser.add_argument("--mode", choices=("merge", "merge-clean", "verify"))
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument("--confirm-delete", action="store_true")
+    parser.add_argument("--releases", type=Path, help="Override the release source directory")
     return parser
 
 
@@ -56,6 +69,41 @@ def main(argv: Sequence[str] = ()) -> int:
             )
             result = TextNormalizationPipeline(input_dir, output_dir).run()
             logger.info("AI-DS-02 completed. Outputs: %s", result["outputs"])
+        elif task == "DATASET-CONSOLIDATION":
+            mode = args.mode or "merge"
+            destination = args.output or PROJECT_ROOT / "data" / "asr-dataset"
+            if mode == "verify":
+                result = verify(destination)
+            else:
+                result = consolidate(
+                    processed=args.input or PROJECT_ROOT / "data" / "processed",
+                    releases=args.releases or PROJECT_ROOT / "data" / "releases",
+                    destination=destination,
+                    mode=mode,
+                    dry_run=args.dry_run,
+                    overwrite=args.overwrite,
+                    confirm_delete=args.confirm_delete,
+                )
+            logger.info("Dataset consolidation %s: %s", mode, result)
+            if result["status"] not in {"passed", "dry-run"}:
+                return 1
+        elif task == "DATASET-RELEASE":
+            metadata_dir = args.input or settings.processed_data_dir / "Arabic-English-ASR"
+            release_dir = args.output or PROJECT_ROOT / "data" / "releases" / "data-v1.1"
+            result = DatasetReleasePipeline(
+                metadata_dir,
+                PROJECT_ROOT / "data",
+                release_dir,
+                settings.artifacts_dir / "data_engineering" / "reports",
+            ).run()
+            logger.info("Grouped dataset release created: %s", result)
+        elif task == "AI-DS-03":
+            result = ConsolidatedDatasetPipeline(
+                args.input or PROJECT_ROOT / "data" / "asr-dataset",
+                args.output
+                or settings.artifacts_dir / "data_engineering" / "reports",
+            ).run()
+            logger.info("AI-DS-03 consolidated dataset analysis completed: %s", result)
         else:
             task_settings = settings
             if args.input:

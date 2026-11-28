@@ -308,13 +308,15 @@ class DataEngineeringPipeline:
         """Write audit summaries and quarantine/review ledgers to artifacts."""
         if not self.results.audio_audits:
             raise RuntimeError("Audio audits must run before writing reports")
-        report_dir = self.settings.artifacts_dir / "data_engineering" / "reports"
-        report_dir.mkdir(parents=True, exist_ok=True)
+        report_root = self.settings.artifacts_dir / "data_engineering" / "reports"
         written: dict[str, Path] = {}
+        run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
         for name, audit in self.results.audio_audits.items():
             stem = name.replace("-", "_").lower()
-            ledger_path = report_dir / f"{stem}_quarantine_ledger.csv"
-            report_path = report_dir / f"{stem}_audit_report.json"
+            report_dir = report_root / "audio_quality" / stem / run_id
+            report_dir.mkdir(parents=True, exist_ok=False)
+            ledger_path = report_dir / "quarantine_ledger.csv"
+            report_path = report_dir / "audit_report.json"
             quarantine = audit.loc[audit["final_audit_status"] != "valid"]
             quarantine.to_csv(ledger_path, index=False, encoding="utf-8-sig")
             report = {
